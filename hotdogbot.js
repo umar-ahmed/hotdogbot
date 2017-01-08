@@ -18,7 +18,7 @@ const bot = new builder.UniversalBot(connector)
 
 // Server Init
 const server = restify.createServer()
-server.listen(8080)
+server.listen(80)
 server.post('/', connector.listen())
 /*
 var connector = new builder.ConsoleConnector().listen();
