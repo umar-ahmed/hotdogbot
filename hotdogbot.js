@@ -16,13 +16,40 @@ bot.dialog('/', function (session) {
 
 			if (intent == "greetings") {
 				session.beginDialog('/profile');
+			} else if (intent == "food") {
+				var food = res.get('food').value;
+				session.privateConversationData.order = session.privateConversationData.order || [];
+				session.beginDialog('/food', food);
+			}else if (intent == "help") {
+				session.beginDialog('/help');
 			} else {
 				session.send('Not sure what you mean');
 			}
 		})
-		.catch(() => session.send('Message servive not available'))
+		.catch(() => session.send('Message service not available'))
 });
 
+
+// Dialogs
+
+bot.dialog('/help', (session) => {
+	var help_msg = `
+	This is HotDogBot, a chat bot for placing
+	orders for Nasir's Hot Dog Stand. The
+	following is a list of ways you can
+	interact with the chat bot:
+
+	Type 'What\'s on the menu' to view the 
+	menu.
+
+	Type 'I want [menu item]' to add a menu
+	item to your order.
+
+	Type 'What are the specials today' to see 
+	the specials.
+	`;
+	session.send(help_msg);
+});
 
 bot.dialog('/profile', [
 	function (session) {
@@ -32,5 +59,24 @@ bot.dialog('/profile', [
 		session.privateConversationData.name = results.response;
 		session.send('Hi %s', session.privateConversationData.name);
 		session.endDialog();
+	}
+]);
+
+bot.dialog('/food', [
+	(session, args, next) => {
+        if (!args) {
+            builder.Prompts.text(session, "What would you like?");
+        } else {
+            next({ response: args });
+        }
+	},
+	(session, results) => {
+		var item = {
+			"name": results.response,
+			"price": 0.00
+		};
+		var order = session.privateConversationData.order;
+		order.push(item);
+		console.log(order);
 	}
 ]);
